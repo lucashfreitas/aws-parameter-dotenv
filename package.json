@@ -1,0 +1,37 @@
+{
+  "name": "aws-parameter-dotenv",
+  "version": "1.0.0",
+  "description": "Tiny library to Load environment variables directly from AWS Parameter Store",
+  "main": "out/index.js",
+  "typings": "out/index.d.ts",
+  "types": "out/index.d.ts",
+  "module": "out/index.es.js",
+  "scripts": {
+    "prepublish": "tsc",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lucashfreitas/aws-parameter-dotenv.git"
+  },
+  "keywords": [
+    "AWS",
+    "Parameter",
+    "Store"
+  ],
+  "author": "Lucas Santos",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lucashfreitas/aws-parameter-dotenv/issues"
+  },
+  "homepage": "https://github.com/lucashfreitas/aws-parameter-dotenv#readme",
+  "dependencies": {
+    "@aws-sdk/client-ssm": "^3.48.0"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.10",
+    "prettier": "^2.5.1",
+    "typescript": "^4.5.5"
+  }
+}

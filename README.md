@@ -1,1 +1,1 @@
-# aws-dotenv
+# aws-parameter-dotenv

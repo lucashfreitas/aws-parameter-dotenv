@@ -62,10 +62,8 @@ const load = (client: SSMClient, config: ConfigOptions) => async () => {
     });
     const response = await client.send(getParametersByPathCommand);
     response.Parameters?.forEach((p) => {
-      console.log("paaa", p);
       if (p.Name && p.Value) {
         process.env[extractParameterName(p.Name)] = p.Value;
-        console.log(`AwsDotEnv:: ${p.Name} loaded`);
       }
     });
   } catch (error) {

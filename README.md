@@ -4,7 +4,7 @@ Tiny Library/wrapper around AWS System Parameter Store to load environment varia
 
 # Use
 
-`yarn install aws-parameter-dotenv` or `npm i aws-parameter-dotenv`.
+`yarn add aws-parameter-dotenv` or `npm i aws-parameter-dotenv`.
 
 This library is very opinated on how to name/structure the parameter names following this
 structure: `{projectName}/{environmentName}/{parameterName}`. The parameterName should be **camelCase**.

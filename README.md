@@ -4,21 +4,15 @@ Tiny Library/wrapper around AWS System Parameter Store to load environment varia
 
 # Use
 
+`yarn install aws-parameter-dotenv` or `npm i aws-parameter-dotenv`.
+
 This library is very opinated on how to name/structure the parameter names following this
-structure: `{projectName}/{environmentName}/{parameterName}`. The parameterName should be **camelCase** and
+structure: `{projectName}/{environmentName}/{parameterName}`. The parameterName should be **camelCase**.
+
+- You can use the library to add parameters as follow:
 
 ```typescript
 import awsparamterdotenv from "aws-parameter-dot-env";
-
-/**
- * Load all the environment variables
- * */
-
-await awsparamterdotenv({
-  project: "projectName",
-  environment: "environment",
-  region: "us-east-1",
-}).load();
 
 /**
  * Add environment variables
@@ -33,6 +27,24 @@ await awsparamterdotenv({
   value: "myValue",
   secret: true, // should be stored as secure string
 });
+```
+
+- Or just load the parameters
+
+```typescript
+import awsparamterdotenv from "aws-parameter-dot-env";
+
+/**
+ * Load all the environment variables
+ * */
+
+await awsparamterdotenv({
+  project: "projectName",
+  environment: "environment",
+  region: "us-east-1",
+}).load();
+
+process.env.myParameter === "myValue"; // is TRUE
 ```
 
 # Testing

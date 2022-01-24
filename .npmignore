@@ -1,3 +1,10 @@
 .vscode
 test
 yarn.lock
+.nyc_output
+.env
+.env.example
+.gitignore
+.taprc
+tsconfig.json
+node_modules

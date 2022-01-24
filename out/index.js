@@ -1,36 +1,37 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_ssm_1 = require("@aws-sdk/client-ssm");
-const checkAwsCredentials = () => {
-    if (!process.env.AWS_ACCESS_KEY_ID) {
-        throw new Error("AWS_ACCESS_KEY_ID must be set as an environment variable");
-    }
-    if (!process.env.AWS_SECRET_ACCESS_KEY) {
-        throw new Error("AWS_SECRET_ACCESS_KEY must be set as an environment variable");
-    }
-};
+const utils_1 = require("./utils");
 const awsDotEnv = (config) => {
-    checkAwsCredentials();
+    (0, utils_1.assertAwsCrendentialsAreSetup)();
+    (0, utils_1.assertConfigIsValid)({
+        project: config.project,
+        environment: config.environment,
+    });
     const client = new client_ssm_1.SSMClient({ region: config.region });
     return {
         addParameter: addParameter(client, config),
         load: load(client, config),
     };
 };
-const load = (client, config) => async (params) => {
+const load = (client, config) => async () => {
     try {
         const getParametersByPathCommand = new client_ssm_1.GetParametersByPathCommand({
-            Path: `/${params.project}/${params.env}`,
+            Path: `/${config.project}/${config.environment}`,
             WithDecryption: true,
         });
         const response = await client.send(getParametersByPathCommand);
         response.Parameters?.forEach((p) => {
-            if (p.Name && p.Value)
-                process.env[p.Name] = p.Value;
+            console.log("paaa", p);
+            if (p.Name && p.Value) {
+                process.env[(0, utils_1.extractParameterName)(p.Name)] = p.Value;
+                console.log(`AwsDotEnv:: ${p.Name} loaded`);
+            }
         });
     }
     catch (error) {
         console.error(error);
+        throw error;
     }
 };
 /**
@@ -47,18 +48,12 @@ const addParameter = (client, config) => async (params) => {
             Value: value,
             Overwrite: true,
             Type: secure ? client_ssm_1.ParameterType.SECURE_STRING : client_ssm_1.ParameterType.STRING,
-            Tags: [
-                {
-                    Key: "env",
-                    Value: `${config.project}/${config.environment}`,
-                },
-            ],
         });
-        const response = await client.send(putParameterCommand);
-        console.log("Parameter Sucessfuly added");
+        await client.send(putParameterCommand);
     }
     catch (error) {
         console.error(error);
+        throw error;
     }
 };
 exports.default = awsDotEnv;

@@ -4,24 +4,25 @@ import {
   PutParameterCommand,
   ParameterType,
 } from "@aws-sdk/client-ssm";
+import {
+  assertAwsCrendentialsAreSetup,
+  assertConfigIsValid,
+  extractParameterName,
+} from "./utils";
 
-interface ConfigOptions {
-  project: string;
-  environment: string;
-  region: string;
+/**
+ * Configuration Option
+ */
+export interface ConfigOptions {
+  project: string; //project name
+  environment: string; //environment name, e.g local, stage, production
+  region: string; // aws region, e.g us-east-1
 }
 
-interface LoadEnvOptions {
-  /**
-   * Project name
-   */
-  project: string;
-
-  /**
-   * Environment name
-   */
-  env: string;
-}
+export type AwsParameterDotEnv = (config: ConfigOptions) => {
+  addParameter: (options: AddParameterOptions) => void;
+  load: () => void;
+};
 
 interface AddParameterOptions {
   /**
@@ -39,20 +40,12 @@ interface AddParameterOptions {
   secure?: boolean;
 }
 
-const checkAwsCredentials = () => {
-  if (!process.env.AWS_ACCESS_KEY_ID) {
-    throw new Error("AWS_ACCESS_KEY_ID must be set as an environment variable");
-  }
-
-  if (!process.env.AWS_SECRET_ACCESS_KEY) {
-    throw new Error(
-      "AWS_SECRET_ACCESS_KEY must be set as an environment variable"
-    );
-  }
-};
-
-const awsDotEnv = (config: ConfigOptions) => {
-  checkAwsCredentials();
+const awsDotEnv: AwsParameterDotEnv = (config) => {
+  assertAwsCrendentialsAreSetup();
+  assertConfigIsValid({
+    project: config.project,
+    environment: config.environment,
+  });
   const client = new SSMClient({ region: config.region });
 
   return {
@@ -61,22 +54,25 @@ const awsDotEnv = (config: ConfigOptions) => {
   };
 };
 
-const load =
-  (client: SSMClient, config: ConfigOptions) =>
-  async (params: LoadEnvOptions) => {
-    try {
-      const getParametersByPathCommand = new GetParametersByPathCommand({
-        Path: `/${params.project}/${params.env}`,
-        WithDecryption: true,
-      });
-      const response = await client.send(getParametersByPathCommand);
-      response.Parameters?.forEach((p) => {
-        if (p.Name && p.Value) process.env[p.Name] = p.Value;
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
+const load = (client: SSMClient, config: ConfigOptions) => async () => {
+  try {
+    const getParametersByPathCommand = new GetParametersByPathCommand({
+      Path: `/${config.project}/${config.environment}`,
+      WithDecryption: true,
+    });
+    const response = await client.send(getParametersByPathCommand);
+    response.Parameters?.forEach((p) => {
+      console.log("paaa", p);
+      if (p.Name && p.Value) {
+        process.env[extractParameterName(p.Name)] = p.Value;
+        console.log(`AwsDotEnv:: ${p.Name} loaded`);
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
 
 /**
  * Adds a parameter to the store
@@ -94,17 +90,11 @@ const addParameter =
         Value: value,
         Overwrite: true,
         Type: secure ? ParameterType.SECURE_STRING : ParameterType.STRING,
-        Tags: [
-          {
-            Key: "env",
-            Value: `${config.project}/${config.environment}`,
-          },
-        ],
       });
-      const response = await client.send(putParameterCommand);
-      console.log("Parameter Sucessfuly added");
+      await client.send(putParameterCommand);
     } catch (error) {
       console.error(error);
+      throw error;
     }
   };
 

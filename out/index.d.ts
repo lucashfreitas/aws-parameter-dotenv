@@ -1,18 +1,15 @@
-interface ConfigOptions {
+/**
+ * Configuration Option
+ */
+export interface ConfigOptions {
     project: string;
     environment: string;
     region: string;
 }
-interface LoadEnvOptions {
-    /**
-     * Project name
-     */
-    project: string;
-    /**
-     * Environment name
-     */
-    env: string;
-}
+export declare type AwsParameterDotEnv = (config: ConfigOptions) => {
+    addParameter: (options: AddParameterOptions) => void;
+    load: () => void;
+};
 interface AddParameterOptions {
     /**
      * Parameter name
@@ -27,8 +24,5 @@ interface AddParameterOptions {
      */
     secure?: boolean;
 }
-declare const awsDotEnv: (config: ConfigOptions) => {
-    addParameter: (params: AddParameterOptions) => Promise<void>;
-    load: (params: LoadEnvOptions) => Promise<void>;
-};
+declare const awsDotEnv: AwsParameterDotEnv;
 export default awsDotEnv;

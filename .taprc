@@ -1,0 +1,5 @@
+ts: true
+watch: true
+coverage: true
+check-coverage: false
+test-regex: test/*.spec.ts

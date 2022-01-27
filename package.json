@@ -1,6 +1,6 @@
 {
   "name": "aws-parameter-dotenv",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Tiny library to Load environment variables directly from AWS Parameter Store",
   "main": "out/index.js",
   "typings": "out/index.d.ts",
